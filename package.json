@@ -1,7 +1,7 @@
 {
   "name": "heyy",
   "author": "Federico Valla",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A reactive state management system with event emitter",
   "type": "module",
   "main": "index.js",
