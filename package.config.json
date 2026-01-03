@@ -1,22 +1,23 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "your-package-name",
+  "name": "heyy",
   "version": "0.0.1",
-  "description": "A starter template for creating npm packages with Astro documentation",
-  "author": "your-name",
+  "description": "A reactive state management system with event emitter",
+  "author": "Federico Valla",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/package-starter.git"
+    "url": "git+https://github.com/vallafederico/heyy.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/package-starter/issues"
+    "url": "https://github.com/vallafederico/heyy/issues"
   },
-  "homepage": "https://github.com/yourusername/package-starter#readme",
+  "homepage": "https://github.com/vallafederico/heyy#readme",
   "keywords": [
-    "starter",
-    "template",
-    "package"
+    "state-management",
+    "reactive",
+    "event-emitter",
+    "proxy",
+    "typescript"
   ]
 }
-

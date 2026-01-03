@@ -19,8 +19,8 @@ const option: BuildConfig = {
 async function run() {
   try {
     // Update these to match your package
-    const globalName = "PackageName" // Change this to your package's global name
-    const bundleName = "package.min.js" // Change this to match your package name
+    const globalName = "heyy" // Change this to your package's global name
+    const bundleName = "heyy.min.js" // Change this to match your package name
     
     await Promise.all([
       build({

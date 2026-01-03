@@ -1,185 +1,233 @@
-# Package Starter Template
+# heyy
 
-A modern starter template for creating npm packages with beautiful Astro documentation and landing pages.
+A lightweight, reactive state management system with event emitter capabilities. Built with TypeScript, `heyy` combines proxy-based reactivity with an event-driven architecture to enable automatic UI updates and cross-component communication.
 
-## 🚀 Features
+## ✨ Features
 
-- **Package Development**: Clean TypeScript package structure with build scripts
-- **Documentation Site**: Astro-powered documentation and landing page
-- **Build System**: Bun-based build system with ESM, CJS, and UMD outputs
-- **TypeScript**: Full TypeScript support with type definitions
-- **Monorepo**: pnpm workspace setup for managing package and web app together
+- 🔄 **Reactive State Updates** - Automatic event emission when state properties change
+- 📡 **Event-Driven Architecture** - Loose coupling through event listeners
+- 🎯 **One-Time Event Listeners** - Built-in support for initialization events
+- 🔗 **Nested Object Reactivity** - Deep reactivity through proxy chaining
+- 🧹 **Automatic Cleanup** - Easy listener management with cleanup functions
+- 🚀 **Lightweight & Performant** - Zero dependencies, minimal overhead
+- 📘 **TypeScript Support** - Full type safety with module augmentation
 
-## 📁 Project Structure
-
-```
-.
-├── package/          # Your npm package source code
-│   ├── src/         # Source files
-│   ├── index.ts     # Package entry point
-│   └── package.json # Package configuration
-├── web/             # Astro documentation site
-│   ├── src/         # Astro source files
-│   └── public/      # Static assets
-├── bin/             # Build scripts
-└── docs/            # Documentation files
-```
-
-## 🛠️ Getting Started
-
-### 1. Update Package Information
-
-**Easy way (recommended):** Update `package.config.json` with your package details, then run:
+## 📦 Installation
 
 ```bash
-pnpm sync
+npm install heyy
+# or
+pnpm add heyy
+# or
+yarn add heyy
 ```
 
-This will automatically sync common fields (name, version, author, description, repository, etc.) across all `package.json` files.
-
-**Manual way:** Update the following files individually:
-
-- `package.json` - Package name, description, repository, etc.
-- `package/package.json` - Package-specific configuration
-- `web/package.json` - Web app configuration
-- `bin/build.ts` - Update global name and bundle name
-- `web/astro.config.mjs` - Update site URL
-
-### 2. Install Dependencies
-
-```bash
-pnpm install
-```
-
-### 3. Develop
-
-Run both package and web app in development mode:
-
-```bash
-pnpm dev
-```
-
-Or run them separately:
-
-```bash
-pnpm dev:package  # Watch package files
-pnpm dev:web      # Start Astro dev server
-```
-
-### 4. Build
-
-Build both package and web app:
-
-```bash
-pnpm build
-```
-
-Or build separately:
-
-```bash
-pnpm build:package  # Build package
-pnpm build:web      # Build Astro site
-```
-
-### 5. Publish
-
-When ready to publish your package:
-
-```bash
-pnpm release:patch   # Patch version (0.0.1 -> 0.0.2)
-pnpm release:minor   # Minor version (0.0.1 -> 0.1.0)
-pnpm release:major   # Major version (0.0.1 -> 1.0.0)
-```
-
-## 📦 Package Development
-
-### Package Structure
-
-Your package code lives in the `package/` directory:
-
-- `package/src/core.ts` - Main package implementation
-- `package/src/utils.ts` - Utility functions
-- `package/index.ts` - Package exports
-
-### Build Outputs
-
-The build process generates:
-
-- `dist/esm.js` - ES Module format
-- `dist/cjs.js` - CommonJS format
-- `dist/package.min.js` - UMD bundle for browsers
-- `dist/index.d.ts` - TypeScript definitions
-
-### Customizing the Build
-
-Edit `bin/build.ts` to customize the build process. Update the global name and bundle name for browser builds:
+## 🚀 Quick Start
 
 ```typescript
-globalName: "YourPackageName",
-naming: "your-package.min.js",
+import hey from 'heyy'
+
+// Set up event listeners for state changes
+hey.on('user', (userData) => {
+  console.log('User data changed:', userData)
+  updateUserInterface(userData)
+})
+
+// Update state (triggers events automatically)
+hey.user = { name: 'John', age: 30 }
+
+// Listen for one-time events
+hey.once('initialized', () => {
+  console.log('App initialized!')
+})
+
+// Remove event listeners
+const handler = (data) => console.log(data)
+hey.on('update', handler)
+hey.off('update', handler)
 ```
 
-## 🌐 Documentation Site
+## 📖 Basic Usage
 
-The `web/` directory contains an Astro site for your documentation and landing page.
+### Setting Up Listeners
 
-### Customizing the Landing Page
+```typescript
+import hey from 'heyy'
 
-Edit `web/src/pages/index.astro` and `web/src/components/landing/Hero.astro` to customize your landing page.
+// Listen for state changes
+hey.on('user', (userData) => {
+  console.log('User updated:', userData)
+})
 
-### Adding Documentation Pages
+hey.on('cart', (cartData) => {
+  updateCartDisplay(cartData)
+})
 
-Create new pages in `web/src/pages/`:
-
-```astro
----
-import Layout from "~/layouts/Layout.astro"
----
-
-<Layout>
-  <h1>Documentation Page</h1>
-  <!-- Your content here -->
-</Layout>
+// One-time listener (auto-removes after first call)
+hey.once('app:ready', () => {
+  initializeApp()
+})
 ```
 
-### Styling
+### Updating State
 
-The site uses Tailwind CSS. Customize styles in `web/src/styles/` or add Tailwind classes directly.
+```typescript
+// Simple property assignment triggers events automatically
+hey.user = { name: 'John', email: 'john@example.com' }
+hey.cart = { items: [], total: 0 }
 
-## 📝 Documentation
-
-Add your documentation files to the `docs/` directory. You can reference them in your Astro pages or link to them from your landing page.
-
-## 🔧 Configuration
-
-### Syncing Package Metadata
-
-To keep all `package.json` files in sync, update `package.config.json` with your package information and run:
-
-```bash
-pnpm sync
+// Nested objects are also reactive
+hey.user.profile = { bio: 'Hello World' }
 ```
 
-This syncs the following fields across all package.json files:
+### Cleanup
 
-- `name` - Package name
-- `version` - Package version
-- `author` - Author information
-- `description` - Package description
-- `license` - License type
-- `repository` - Git repository URL
-- `bugs` - Bug tracker URL
-- `homepage` - Homepage URL
-- `keywords` - Package keywords
+```typescript
+// The 'on' method returns a cleanup function
+const unsubscribe = hey.on('user', (userData) => {
+  console.log('User:', userData)
+})
 
-### TypeScript
+// Later, remove the listener
+unsubscribe()
 
-- Root `tsconfig.json` - TypeScript configuration for the package
-- `web/tsconfig.json` - TypeScript configuration for the Astro site
+// Or use the 'off' method with the same handler reference
+const handler = (data) => console.log(data)
+hey.on('update', handler)
+hey.off('update', handler)
+```
 
-### Package Manager
+## 🎯 TypeScript Support
 
-This template uses `pnpm` with workspaces. The `pnpm-workspace.yaml` defines the workspace structure.
+Extend the `HeyState` interface via module augmentation for full type safety:
+
+```typescript
+// hey.d.ts or in your project's type definitions
+declare module 'heyy' {
+  interface HeyState {
+    user?: { name: string; email: string }
+    cart?: { items: any[]; total: number }
+    settings?: { theme: 'light' | 'dark'; language: string }
+  }
+}
+
+// Now you get full type safety:
+import hey from 'heyy'
+hey.user = { name: 'John', email: 'john@example.com' } // ✅ Typed
+hey.settings = { theme: 'dark', language: 'en' } // ✅ Typed
+```
+
+## 📚 API Reference
+
+See [API Documentation](./docs/api.md) for complete API reference.
+
+### Core Methods
+
+- `hey.on(event, handler)` - Register an event listener
+- `hey.once(event, handler)` - Register a one-time event listener
+- `hey.off(event, handler)` - Remove an event listener
+
+### State Access
+
+- `hey.property = value` - Set state property (triggers events)
+- `hey.property` - Get state property
+
+## 🔧 Advanced Usage
+
+### React Integration
+
+```typescript
+import { useEffect, useState } from 'react'
+import hey from 'heyy'
+
+function UserProfile() {
+  const [user, setUser] = useState(hey.user)
+
+  useEffect(() => {
+    const unsubscribe = hey.on('user', (userData) => {
+      setUser(userData)
+    })
+
+    return unsubscribe // Cleanup on unmount
+  }, [])
+
+  return <div>{user?.name}</div>
+}
+```
+
+### Vue Integration
+
+```typescript
+import { ref, onMounted, onUnmounted } from 'vue'
+import hey from 'heyy'
+
+export default {
+  setup() {
+    const user = ref(hey.user)
+
+    const unsubscribe = hey.on('user', (userData) => {
+      user.value = userData
+    })
+
+    onUnmounted(() => {
+      unsubscribe()
+    })
+
+    return { user }
+  }
+}
+```
+
+### Vanilla JavaScript
+
+```javascript
+import hey from 'heyy'
+
+// Set up listeners
+hey.on('user', (userData) => {
+  document.getElementById('username').textContent = userData.name
+})
+
+hey.on('cart', (cartData) => {
+  document.getElementById('cart-count').textContent = cartData.items.length
+})
+
+// Update state from anywhere in your app
+hey.user = { name: 'John', email: 'john@example.com' }
+hey.cart = { items: [{ id: 1, name: 'Product' }], total: 29.99 }
+```
+
+## 🏗️ Architecture
+
+`heyy` consists of three main components:
+
+1. **SimpleEmitter** - Handles event registration and emission
+2. **State** - Manages the reactive state and proxy creation
+3. **Proxy Handler** - Intercepts property access and mutations
+
+The system uses JavaScript Proxies to intercept property assignments and automatically emit events when state changes occur.
+
+## ⚡ Performance
+
+- Event emission is synchronous and lightweight
+- Proxy overhead is minimal for typical use cases
+- Memory usage scales linearly with event listeners
+- No external dependencies
+
+## 🔒 Security
+
+- No external dependencies
+- No `eval()` or dynamic code execution
+- Type-safe event handling with TypeScript
+
+## 📝 Best Practices
+
+1. **Use descriptive event names** - e.g., `'user:updated'`, `'cart:item:added'`
+2. **Always remove event listeners** - Prevent memory leaks by cleaning up
+3. **Prefer `once` for initialization events** - Auto-cleanup for one-time operations
+4. **Use TypeScript interfaces** - Define state structure via module augmentation
+5. **Keep handlers focused** - Single responsibility for better maintainability
+6. **Store handler references** - Required for proper cleanup with `off()`
 
 ## 📄 License
 
@@ -187,8 +235,8 @@ MIT
 
 ## 🤝 Contributing
 
-This is a starter template. Fork it, customize it, and make it your own!
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
-**Happy coding!** 🎉
+**Made with ❤️ for reactive state management**

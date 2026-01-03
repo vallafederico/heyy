@@ -1,265 +1,436 @@
 # API Reference
 
-## Core Class
+Complete API documentation for `heyy` - a reactive state management system with event emitter capabilities.
 
-The main slider class that provides all the functionality.
+## Table of Contents
 
-```js
-import Core from "smooothy"
+- [Import](#import)
+- [State Management](#state-management)
+- [Event Methods](#event-methods)
+- [TypeScript Support](#typescript-support)
+- [Examples](#examples)
 
-const slider = new Core(wrapper, config)
+## Import
+
+```typescript
+import hey from 'heyy'
 ```
 
-### Constructor
+The default export is a reactive state instance that combines state properties with event management methods.
+
+## State Management
+
+### Setting State
+
+Assign values to properties on the `hey` instance to update state. This automatically triggers events for registered listeners.
+
+```typescript
+// Simple property assignment
+hey.user = { name: 'John', email: 'john@example.com' }
+
+// Nested objects are automatically made reactive
+hey.user.profile = { bio: 'Hello World' }
+
+// Primitive values
+hey.count = 42
+hey.isLoading = true
+```
+
+**Note:** When you assign an object, it's automatically wrapped in a proxy to enable nested reactivity.
+
+### Getting State
+
+Access state properties directly:
+
+```typescript
+const user = hey.user
+const count = hey.count
+const isLoading = hey.isLoading
+```
+
+## Event Methods
+
+### `hey.on(event, handler)`
+
+Register an event listener for state changes.
 
 **Parameters:**
+- `event` (string) - The name of the state property to listen for changes
+- `handler` (function) - Callback function that receives the new state value
 
-- `wrapper` (HTMLElement) - The container element with slides as direct children
-- `config` (Partial<CoreConfig>) - Configuration object (optional)
+**Returns:** A cleanup function that removes the listener when called
 
-### Configuration Options
+**Example:**
+```typescript
+// Basic usage
+hey.on('user', (userData) => {
+  console.log('User updated:', userData)
+})
 
-```js
-interface CoreConfig {
-  // Basic behavior
-  infinite: boolean           // Enable infinite scrolling (default: true)
-  snap: boolean              // Enable snap to slides (default: true)
-  variableWidth: boolean     // Enable variable width slides (default: false)
-  vertical: boolean          // Enable vertical scrolling (default: false)
+// With cleanup function
+const unsubscribe = hey.on('cart', (cartData) => {
+  updateCartUI(cartData)
+})
 
-  // Sensitivity and animation
-  dragSensitivity: number    // Mouse/touch drag sensitivity (default: 0.005)
-  lerpFactor: number         // Animation smoothing factor (default: 0.3)
-  scrollSensitivity: number  // Scroll wheel sensitivity (default: 1)
-  snapStrength: number       // Snap animation strength (default: 0.1)
-  speedDecay: number         // Speed decay factor (default: 0.85)
-  bounceLimit: number        // Bounce limit for finite sliders (default: 1)
+// Later, remove the listener
+unsubscribe()
+```
 
-  // Virtual scroll configuration
-  virtualScroll: {
-    mouseMultiplier: number  // Mouse wheel multiplier (default: 0.5)
-    touchMultiplier: number  // Touch scroll multiplier (default: 2)
-    firefoxMultiplier: number // Firefox specific multiplier (default: 30)
-    useKeyboard: boolean     // Enable keyboard controls (default: false)
-    passive: boolean         // Use passive event listeners (default: true)
+**Best Practices:**
+- Use descriptive property names for better debugging
+- Store the cleanup function for later removal
+- Remove listeners in cleanup functions to prevent memory leaks
+
+### `hey.once(event, handler)`
+
+Register an event listener that will be called only once and then automatically removed.
+
+**Parameters:**
+- `event` (string) - The name of the state property to listen for changes
+- `handler` (function) - Callback function that receives the new state value
+
+**Returns:** A cleanup function that removes the listener when called (though it will auto-remove after first call)
+
+**Example:**
+```typescript
+// One-time initialization
+hey.once('initialized', () => {
+  console.log('Application initialized')
+  startApp()
+})
+
+// One-time user data fetch
+hey.once('user', (userData) => {
+  showWelcomeMessage(userData)
+})
+```
+
+**Best Practices:**
+- Use for initialization events that should only happen once
+- Avoid using for events that may occur multiple times
+- Consider using for cleanup operations
+
+### `hey.off(event, handler)`
+
+Remove an event listener.
+
+**Parameters:**
+- `event` (string) - The name of the state property
+- `handler` (function) - The exact same function reference that was used with `on()`
+
+**Returns:** `void`
+
+**Example:**
+```typescript
+const handler = (userData) => {
+  console.log('User:', userData)
+}
+
+// Add listener
+hey.on('user', handler)
+
+// Later, remove listener
+hey.off('user', handler)
+```
+
+**Important:** You must use the exact same function reference when removing a listener. Anonymous functions cannot be removed.
+
+**Best Practices:**
+- Always store handler references when adding listeners
+- Use the exact same handler reference when removing
+- Consider using the cleanup function from `on()` instead
+
+## TypeScript Support
+
+### Extending the HeyState Interface
+
+To get full type safety, extend the `HeyState` interface via module augmentation:
+
+```typescript
+// hey.d.ts or in your project's type definitions
+declare module 'heyy' {
+  interface HeyState {
+    user?: {
+      name: string
+      email: string
+      profile?: {
+        bio: string
+        avatar?: string
+      }
+    }
+    cart?: {
+      items: Array<{
+        id: string
+        name: string
+        price: number
+      }>
+      total: number
+    }
+    settings?: {
+      theme: 'light' | 'dark'
+      language: string
+    }
   }
-
-  // Custom offset calculation
-  setOffset: (viewport: Viewport) => number  // Function to calculate offset (default: itemWidth)
-
-  // Input handling
-  scrollInput: boolean       // Enable scroll input (default: false)
-
-  // Callbacks
-  onSlideChange?: (current: number, previous: number) => void
-  onResize?: (core: Core) => void
-  onUpdate?: (core: Core) => void
 }
 ```
 
-### Properties
+After extending the interface, you'll get full type safety:
 
-#### Read-only Properties
+```typescript
+import hey from 'heyy'
 
-- `wrapper` (HTMLElement) - The slider container element
-- `items` (HTMLElement[]) - Array of slide elements
-- `viewport` (Viewport) - Current viewport information
-- `config` (CoreConfig) - Current configuration
-- `currentSlide` (number) - Current slide index
-- `progress` (number) - Progress through slider (0-1)
-- `isVisible` (boolean) - Whether slider is visible in viewport
-- `isDragging` (boolean) - Whether user is currently dragging
-- `maxScroll` (number) - Maximum scroll position
+// ✅ Typed - TypeScript knows the structure
+hey.user = {
+  name: 'John',
+  email: 'john@example.com',
+  profile: {
+    bio: 'Hello World'
+  }
+}
 
-#### Mutable Properties
+// ✅ Typed - TypeScript enforces the theme type
+hey.settings = {
+  theme: 'dark', // ✅ Valid
+  language: 'en'
+}
 
-- `current` (number) - Current position
-- `target` (number) - Target position
-- `speed` (number) - Current speed
-- `deltaTime` (number) - Time since last update
-- `parallaxValues` (number[]) - Parallax values for each item
-- `webglValue` (number) - WebGL-specific value
-
-#### Getters/Setters
-
-- `paused` (boolean) - Get/set pause state
-- `snap` (boolean) - Get/set snap behavior
-
-### Methods
-
-#### Navigation
-
-- `goToNext()` - Go to next slide
-- `goToPrev()` - Go to previous slide
-- `goToIndex(index: number)` - Go to specific slide index
-
-#### State Control
-
-- `kill()` - Stop the slider and reset transforms
-- `init()` - Restart the slider
-- `destroy()` - Clean up event listeners and observers
-- `resize()` - Manually trigger resize recalculation
-
-#### Information
-
-- `getProgress()` - Get current progress (0-1)
-- `update()` - Update slider state (called in animation loop)
-
-### Callbacks
-
-#### onSlideChange(current: number, previous: number)
-
-Called when the current slide changes.
-
-```js
-const slider = new Core(wrapper, {
-  onSlideChange: (current, previous) => {
-    console.log(`Slide changed from ${previous} to ${current}`)
-  },
-})
-```
-
-#### onResize(core: Core)
-
-Called when the slider is resized.
-
-```js
-const slider = new Core(wrapper, {
-  onResize: core => {
-    console.log("Slider resized", core.viewport)
-  },
-})
-```
-
-#### onUpdate(core: Core)
-
-Called on every update frame.
-
-```js
-const slider = new Core(wrapper, {
-  onUpdate: core => {
-    // Access current state
-    console.log("Progress:", core.progress)
-    console.log("Speed:", core.speed)
-    console.log("Parallax values:", core.parallaxValues)
-  },
-})
-```
-
-## Utility Functions
-
-### lerp(v0: number, v1: number, t: number): number
-
-Linear interpolation between two values.
-
-```js
-import { lerp } from "smooothy"
-
-const value = lerp(0, 100, 0.5) // Returns 50
-```
-
-### damp(a: number, b: number, lambda: number, deltaTime: number): number
-
-Damped interpolation for smooth animations.
-
-```js
-import { damp } from "smooothy"
-
-// Smoothly animate towards target
-const current = damp(current, target, 0.1, deltaTime)
-```
-
-### symmetricMod(value: number, base: number): number
-
-Symmetric modulo operation for infinite scrolling.
-
-```js
-import { symmetricMod } from "smooothy"
-
-const normalized = symmetricMod(5, 3) // Returns -1
-```
-
-## Viewport Interface
-
-```js
-interface Viewport {
-  // Horizontal dimensions
-  itemWidth: number    // Width of a single item
-  wrapperWidth: number // Width of the wrapper
-  totalWidth: number   // Total width of all items
-  
-  // Vertical dimensions
-  itemHeight: number   // Height of a single item
-  wrapperHeight: number // Height of the wrapper
-  totalHeight: number  // Total height of all items
-  
-  // Orientation
-  vertical: boolean    // Whether slider is in vertical mode
+// ❌ TypeScript error - 'blue' is not a valid theme
+hey.settings = {
+  theme: 'blue', // ❌ Type error
+  language: 'en'
 }
 ```
 
 ## Examples
 
-### Basic Usage
+### Basic State Management
 
-```js
-import Core from "smooothy"
-import gsap from "gsap"
+```typescript
+import hey from 'heyy'
 
-const wrapper = document.querySelector(".slider")
-const slider = new Core(wrapper, {
-  infinite: true,
-  snap: true,
+// Set up listeners
+hey.on('user', (userData) => {
+  console.log('User updated:', userData)
+  updateUserProfile(userData)
 })
 
-gsap.ticker.add(slider.update.bind(slider))
+hey.on('cart', (cartData) => {
+  updateCartCount(cartData.items.length)
+  updateCartTotal(cartData.total)
+})
+
+// Update state
+hey.user = { name: 'John', email: 'john@example.com' }
+hey.cart = {
+  items: [{ id: 1, name: 'Product', price: 29.99 }],
+  total: 29.99
+}
 ```
 
-### With Callbacks
+### React Integration
 
-```js
-const slider = new Core(wrapper, {
-  onSlideChange: (current, previous) => {
-    // Update UI indicators
-    updateDots(current, previous)
-  },
-  onUpdate: core => {
-    // Update progress bar
-    progressBar.style.transform = `scaleX(${core.progress * 100}%)`
-  },
+```typescript
+import { useEffect, useState } from 'react'
+import hey from 'heyy'
+
+function UserProfile() {
+  const [user, setUser] = useState(hey.user)
+
+  useEffect(() => {
+    const unsubscribe = hey.on('user', (userData) => {
+      setUser(userData)
+    })
+
+    return unsubscribe // Cleanup on unmount
+  }, [])
+
+  return (
+    <div>
+      <h1>{user?.name}</h1>
+      <p>{user?.email}</p>
+    </div>
+  )
+}
+```
+
+### Vue Integration
+
+```typescript
+import { ref, onMounted, onUnmounted } from 'vue'
+import hey from 'heyy'
+
+export default {
+  setup() {
+    const user = ref(hey.user)
+    const cart = ref(hey.cart)
+
+    const unsubscribeUser = hey.on('user', (userData) => {
+      user.value = userData
+    })
+
+    const unsubscribeCart = hey.on('cart', (cartData) => {
+      cart.value = cartData
+    })
+
+    onUnmounted(() => {
+      unsubscribeUser()
+      unsubscribeCart()
+    })
+
+    return { user, cart }
+  }
+}
+```
+
+### Multiple Listeners
+
+```typescript
+import hey from 'heyy'
+
+// Multiple listeners for the same event
+hey.on('user', (userData) => {
+  updateHeader(userData)
+})
+
+hey.on('user', (userData) => {
+  updateSidebar(userData)
+})
+
+hey.on('user', (userData) => {
+  logUserActivity(userData)
+})
+
+// All listeners are called when state changes
+hey.user = { name: 'John', email: 'john@example.com' }
+```
+
+### Cleanup Pattern
+
+```typescript
+import hey from 'heyy'
+
+class UserManager {
+  private cleanup: (() => void)[] = []
+
+  constructor() {
+    // Store cleanup functions
+    this.cleanup.push(
+      hey.on('user', this.handleUserChange.bind(this))
+    )
+    this.cleanup.push(
+      hey.on('cart', this.handleCartChange.bind(this))
+    )
+  }
+
+  private handleUserChange(userData: any) {
+    console.log('User changed:', userData)
+  }
+
+  private handleCartChange(cartData: any) {
+    console.log('Cart changed:', cartData)
+  }
+
+  destroy() {
+    // Clean up all listeners
+    this.cleanup.forEach(fn => fn())
+    this.cleanup = []
+  }
+}
+```
+
+### Initialization Pattern
+
+```typescript
+import hey from 'heyy'
+
+// Set up one-time initialization
+hey.once('app:ready', () => {
+  console.log('App is ready!')
+  initializeComponents()
+})
+
+// Later, trigger initialization
+hey['app:ready'] = true // Triggers the once listener
+```
+
+### Nested Object Reactivity
+
+```typescript
+import hey from 'heyy'
+
+// Listen for top-level changes
+hey.on('user', (userData) => {
+  console.log('User object changed:', userData)
+})
+
+// Set initial user
+hey.user = {
+  name: 'John',
+  profile: {
+    bio: 'Initial bio'
+  }
+}
+
+// Update nested property (triggers 'user' event)
+hey.user.profile.bio = 'Updated bio'
+```
+
+## Event Naming Conventions
+
+While `heyy` doesn't enforce any naming conventions, here are some recommended patterns:
+
+- **Simple names**: `'user'`, `'cart'`, `'settings'`
+- **Namespaced**: `'user:updated'`, `'cart:item:added'`, `'app:initialized'`
+- **Consistent**: Use the same naming pattern throughout your application
+
+## Performance Considerations
+
+- Event emission is synchronous and lightweight
+- Proxy overhead is minimal for typical use cases
+- Memory usage scales linearly with the number of event listeners
+- Consider removing unused listeners to prevent memory leaks
+- Avoid deeply nested objects for better performance
+
+## Common Patterns
+
+### State Initialization
+
+```typescript
+import hey from 'heyy'
+
+// Initialize state with default values
+hey.user = null
+hey.cart = { items: [], total: 0 }
+hey.settings = { theme: 'light', language: 'en' }
+```
+
+### Conditional Updates
+
+```typescript
+import hey from 'heyy'
+
+hey.on('user', (userData) => {
+  if (userData) {
+    showUserProfile(userData)
+  } else {
+    showLoginForm()
+  }
 })
 ```
 
-### Variable Width
+### State Synchronization
 
-```js
-const slider = new Core(wrapper, {
-  infinite: false,
-  snap: true,
-  variableWidth: true,
-  scrollInput: true,
+```typescript
+import hey from 'heyy'
+
+// Sync state with external source
+async function fetchUser() {
+  const user = await api.getUser()
+  hey.user = user
+}
+
+// Listeners automatically react to the update
+hey.on('user', (userData) => {
+  console.log('User synced:', userData)
 })
-
-// Each slide can have a different width
-// The slider automatically centers each slide based on its width
-```
-
-### State Control
-
-```js
-// Pause/resume
-slider.paused = true // Pause
-slider.paused = false // Resume
-
-// Enable/disable snap
-slider.snap = false
-
-// Kill and restart
-slider.kill()
-slider.init()
-
-// Manual navigation
-slider.goToIndex(3)
-slider.goToNext()
-slider.goToPrev()
 ```

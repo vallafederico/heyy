@@ -1,17 +1,17 @@
 {
-  "name": "your-package-name",
-  "author": "your-name",
+  "name": "heyy",
+  "author": "Federico Valla",
   "version": "0.0.1",
-  "description": "A starter template for creating npm packages with Astro documentation",
+  "description": "A reactive state management system with event emitter",
   "type": "module",
   "main": "index.js",
   "types": "./dist/index.d.ts",
-  "unpkg": "./dist/package.min.js",
+  "unpkg": "./dist/heyy.min.js",
   "exports": {
     "types": "./dist/index.d.ts",
     "import": "./dist/esm.js",
     "require": "./dist/cjs.js",
-    "unpkg": "./dist/package.min.js"
+    "unpkg": "./dist/heyy.min.js"
   },
   "repository": {
     "type": "git",

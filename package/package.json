@@ -1,9 +1,9 @@
 {
-  "name": "your-package-name",
+  "name": "heyy",
   "type": "module",
   "main": "./dist/cjs/cjs.js",
   "module": "./dist/esm/esm.js",
-  "unpkg": "./dist/package.min.js",
+  "unpkg": "./dist/heyy.min.js",
   "exports": {
     ".": {
       "import": "./dist/esm/esm.js",
