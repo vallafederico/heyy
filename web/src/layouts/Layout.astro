@@ -1,0 +1,27 @@
+---
+import Nav from "../components/Nav.astro"
+import Css from "../components/Css.astro"
+
+const { isHome = false } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon_svg.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <Css />
+    <title>Your Package Name</title>
+    <meta name="description" content="A brief description of your package." />
+    <meta property="og:image" content="/og_img.jpg" />
+    {!isHome && <link href="/code.css" rel="stylesheet" />}
+  </head>
+  <body>
+    <Nav />
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>

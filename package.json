@@ -1,0 +1,54 @@
+{
+  "name": "your-package-name",
+  "author": "your-name",
+  "version": "0.0.1",
+  "description": "A starter template for creating npm packages with Astro documentation",
+  "type": "module",
+  "main": "index.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/package.min.js",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "import": "./dist/esm.js",
+    "require": "./dist/cjs.js",
+    "unpkg": "./dist/package.min.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/package-starter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/package-starter/issues"
+  },
+  "homepage": "https://github.com/yourusername/package-starter#readme",
+  "keywords": [
+    "starter",
+    "template",
+    "package"
+  ],
+  "scripts": {
+    "build": "pnpm run -w --parallel /^build:.*/",
+    "build:package": "bun run bin/build.js",
+    "build:web": "cd web && pnpm build",
+    "dev": "pnpm run -w --parallel /^dev:.*/",
+    "dev:web": "cd web && pnpm dev",
+    "dev:package": "bun run bin/dev.js",
+    "sync": "bun run bin/sync-package-json.ts",
+    "pub": "npm version patch && pnpm run build:package && npm publish",
+    "release:patch": "npm version patch && pnpm run build:package && npm publish",
+    "release:minor": "npm version minor && pnpm run build:package && npm publish",
+    "release:major": "npm version major && pnpm run build:package && npm publish"
+  },
+  "files": [
+    "dist/",
+    "package.json",
+    "README.md"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "bun": "^1.2.4",
+    "bun-plugin-dts": "^0.3.0",
+    "esbuild": "^0.25.0"
+  },
+  "dependencies": {}
+}
