@@ -1,8 +1,6 @@
 ---
 import Nav from "../components/Nav.astro"
 import Css from "../components/Css.astro"
-
-const { isHome = false } = Astro.props
 ---
 
 <!doctype html>
@@ -15,8 +13,6 @@ const { isHome = false } = Astro.props
     <Css />
     <title>Your Package Name</title>
     <meta name="description" content="A brief description of your package." />
-    <meta property="og:image" content="/og_img.jpg" />
-    {!isHome && <link href="/code.css" rel="stylesheet" />}
   </head>
   <body>
     <Nav />
